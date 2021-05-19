@@ -2,7 +2,7 @@ import utils
 import eventPiblisher
 
 """
-  Takes level() ; raw_event map , l map , app_vasn string 
+  Takes level() ; raw_event map , l map , app_vasn string ;Parses the event into standard structure
   ## Examples
        publish_event(e) 
 """
@@ -21,7 +21,7 @@ def parse_event(level, raw_event, l, app_vsn):
     component = raw_event["component"] 
     service = raw_event["service"] 
     event_value = raw_event["event_value"] if(raw_event["event_value"]!= None) else raw_event["event_name"]
-    # logger_metadata = Logger.metadata()
+    # logger_metadata = Logger.metadata() #HOW TO DO IN PYTHON
     correlation_id = raw_event["correlation_id"] 
     ou_id = raw_event["ou_id"] 
     x_request_id = raw_event["x_request_id"] 
@@ -47,7 +47,7 @@ def parse_event(level, raw_event, l, app_vsn):
       "reference_id": reference_id,
       "reference_type": reference_type,
       "event_type": event_type,
-      "level": level,
+      "level": level,                        #level() HOW TO DO IN PYTHON
       "level_value": log_level_map[level],
       "service_category": service_category,
       "event_source": event_source,
