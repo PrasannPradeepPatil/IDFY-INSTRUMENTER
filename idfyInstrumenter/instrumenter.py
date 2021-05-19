@@ -1,6 +1,60 @@
 import utils
 import eventPiblisher
 
+"""
+  Takes level() ; raw_event map , l map , app_vasn string 
+  ## Examples
+       publish_event(e) 
+"""
+
+log_level_map = {
+    info: "Info",
+    warn: "Warning",
+    error: "Error"
+}
+
+# Parses the event into standard structure
+def parse_event(level, raw_event, l, app_vsn):
+    event_source = raw_event["event_source"]  if(raw_event["event_source"] != None) else f'({l[app]}) {l[file]}: {l[line]}: {l[m]}.{l[f]}/{l[a]}'
+
+    app_vsn = raw_event["app_vsn"] 
+    component = raw_event["component"] 
+    service = raw_event["service"] 
+    event_value = raw_event["event_value"] if(raw_event["event_value"]!= None) else raw_event["event_name"]
+    # logger_metadata = Logger.metadata()
+    correlation_id = raw_event["correlation_id"] 
+    ou_id = raw_event["ou_id"] 
+    x_request_id = raw_event["x_request_id"] 
+    reference_id = raw_event["reference_id"] 
+    reference_type = raw_event["reference_type"] 
+    event_type = get_event_type(level, raw_event)
+    timestamp = raw_event["timestamp"] 
+    details = raw_event["details"] if(type(raw_event["details"]) is dict) else dict({})
+    service_category =  raw_event["service_category"] 
+
+
+    return {
+      "app_vsn": app_vsn,
+      "eid": utils.uuid4(),
+      "component": component,
+      "service": service,
+      "event_value": event_value,
+      "correlation_id": correlation_id,
+      "ou_id": ou_id,
+      "x_request_id": x_request_id,
+      "timestamp": timestamp,
+      "details": details,
+      "reference_id": reference_id,
+      "reference_type": reference_type,
+      "event_type": event_type,
+      "level": level,
+      "level_value": log_level_map[level],
+      "service_category": service_category,
+      "event_source": event_source,
+      "log_version": raw_event["log_version"]
+    }
+
+
 
 
 """
