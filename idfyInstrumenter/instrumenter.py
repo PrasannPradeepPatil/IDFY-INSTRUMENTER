@@ -6,7 +6,7 @@ import eventPiblisher
   ## Examples
        publish_event(e) 
 """
-
+# log level
 log_level_map = {
     info: "Info",
     warn: "Warning",
