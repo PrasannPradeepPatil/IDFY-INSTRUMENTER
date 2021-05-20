@@ -17,11 +17,11 @@ log_level_map = {
 
   ## Examples
 
-      iex> do_log(level, raw_event, opts, l)
-      {:ok, "Success"}
+      do_log(level, raw_event, opts, l)
+       "Success"
 
-      iex> do_log(level, raw_event, opts, l)
-      {:error, [log: "Some error", publish: "Some error"]}
+      do_log(level, raw_event, opts, l)
+     [log: "Some error", publish: "Some error"]
 
   """
 
