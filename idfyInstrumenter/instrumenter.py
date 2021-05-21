@@ -1,6 +1,7 @@
-import utils
 import os
-# from eventPublisher import publish_message
+from datetime import timezone
+import datetime
+import utils
 import eventPublisher
 
 # log level
@@ -79,7 +80,9 @@ def parse_event(level, raw_event, l, app_vsn):  # level()
     # logger_metadata[:reference_type]
     reference_type = raw_event["reference_type"]
     event_type = get_event_type(level, raw_event)
-    timestamp = raw_event["timestamp"]  # DateTime.utc_now()
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    timestamp =raw_event["timestamp"]  if(raw_event["timestamp"] != None)  else utc_time
     details = raw_event["details"] if(
         type(raw_event["details"]) is dict) else dict({})
     service_category = raw_event["service_category"] if(
@@ -244,7 +247,7 @@ e = {
     "event_value": "event_value",
     "log_version": "log_version",
     "details": "details",
-    "level_value": "'level_value'"
+    "level_value": "level_value"
 
 }
 
