@@ -2,7 +2,10 @@ import os
 from datetime import timezone
 import datetime
 import utils
-import eventPublisher
+from eventPublisher import PublishMessage
+import threading
+
+
 
 # log level
 log_level_map = {
@@ -47,8 +50,21 @@ def do_log(level, raw_event, opts, l, app_vsn):
 
     if(log):
         log_event(res)
+    
+    if publish:
+        if asyncc:
+            t1 = threading.Thread(target=publish, args=(res,))
+            t1.start()
+            t1.join()
 
-    # CODE AFTER THIS IS ELIXIR HEAVY
+
+
+
+def publish(res):
+    if(publish_event(res) == "ok"):
+        return "sucess"
+    if(publish_event(res) == "err"):
+        return     
 
 
 """
@@ -154,7 +170,7 @@ def log_event(e):
        publish_event(e) 
 """
 
-
+publishMessage = PublishMessage()
 def publish_event(e):
     # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :publish) #HOW TO DO IN PYTHON
     event = {
@@ -182,7 +198,7 @@ def publish_event(e):
 
     # publisher.publish_message(event, generate_routing_key(e))
 
-    eventPublisher.publish_message(event, generate_routing_key(e))
+    publishMessage.publish_message(event, generate_routing_key(e))
 
 
 """

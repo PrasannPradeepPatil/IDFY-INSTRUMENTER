@@ -42,3 +42,8 @@ def warn(raw_event, opts=[]):
 """
 def error(raw_event, opts=[]):
     print("error", raw_event, opts, dir())
+
+
+
+
+
