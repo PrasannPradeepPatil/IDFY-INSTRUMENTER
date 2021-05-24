@@ -1,10 +1,9 @@
 import os
 from datetime import timezone
 import datetime
-from .utils import make_routing_key_safe,event_source_routing_key,uuid4
+from .utils import make_routing_key_safe, event_source_routing_key, uuid4
 from .eventPublisher import PublishMessage
 import threading
-
 
 
 # log level
@@ -14,12 +13,14 @@ log_level_map = {
     "error": "Error"
 }
 
+
 def publish_status(res):
-    publish_res = publish_event(res) 
-    if(publish_res== "PunlishedToRabbitMQ"):
+    publish_res = publish_event(res)
+    if(publish_res == "PunlishedToRabbitMQ"):
         print("Published To Rabbit MQ")
     else:
-        print("Error Publishing to RabbitMQ")  
+        print("Error Publishing to RabbitMQ")
+
 
 def error_status(res):
     errors = []
@@ -29,11 +30,9 @@ def error_status(res):
     else:
         errors = errors + [e]
     if (errors.len == 0):
-        print ("Sucess")
+        print("Sucess")
     else:
         print("Error")
-
-
 
 
 """
@@ -59,9 +58,6 @@ def error_status(res):
   """
 
 
-
-
-
 def do_log(level, raw_event, opts, l, app_vsn):
     log = True
     if("log" not in opts):
@@ -82,35 +78,25 @@ def do_log(level, raw_event, opts, l, app_vsn):
     if("publish" not in opts):
         publish = False
     else:
-        publish = opts['publish'] 
+        publish = opts['publish']
 
     res = parse_event(level, raw_event, l, app_vsn)
     if(log):
         print("RESULT LOGGED TO CONSOLE")
         log_event(res)
-    
+
     if (publish == True):
         if (asyncc == True):
             # https://medium.com/velotio-perspectives/an-introduction-to-asynchronous-programming-in-python-af0189a88bbb
             t1 = threading.Thread(target=publish_status, args=(res,))
-            t1.start()   
+            t1.start()
             t1.join()
-            # publish_status(res)  
+            # publish_status(res)
 
         else:
             error_status(res)
     else:
-        print("Sucsss") 
-
-
-
-
-
-
-
-
-
-
+        print("Sucsss")
 
 
 """
@@ -128,32 +114,35 @@ def do_log(level, raw_event, opts, l, app_vsn):
 
 def parse_event(level, raw_event, l, app_vsn):  # level()
     event_source = raw_event["event_source"] if(
-        raw_event["event_source"] != None) else f'({l["app"]}) {l["file"]}: {l["line"]}: {l["m"]}.{l["f"]}/{l["a"]}'
+        "event_source" in raw_event) else f'({l["app"]}) {l["file"]}: {l["line"]}: {l["m"]}.{l["f"]}/{l["a"]}'
 
-    app_vsn = raw_event["app_vsn"] if(
-        raw_event["app_vsn"] != None) else app_vsn
+    app_vsn = raw_event["app_vsn"] if("app_vsn" in raw_event) else app_vsn
     component = raw_event["component"] if(
-        raw_event["component"] != None) else os.environ['component']
+        "component" in raw_event) else os.environ['component']
     service = raw_event["service"] if(
-        raw_event["service"] != None) else os.environ['service']
+        "service" in raw_event) else os.environ['service']
     event_value = raw_event["event_value"] if(
-        raw_event["event_value"] != None) else raw_event["event_name"]
+        "event_value" in raw_event) else raw_event["event_name"]
     # logger_metadata = Logger.metadata()
-    # logger_metadata[:correlation_id]
-    correlation_id = raw_event["correlation_id"]
-    ou_id = raw_event["ou_id"]  # logger_metadata[:ou_id]
-    x_request_id = raw_event["x_request_id"]  # logger_metadata[:x_request_id]
-    reference_id = raw_event["reference_id"]  # logger_metadata[:reference_id]
-    # logger_metadata[:reference_type]
-    reference_type = raw_event["reference_type"]
+    correlation_id = raw_event["correlation_id"] if(
+        "correlation_id" in raw_event) else "correlation_id"  # logger_metadata[:correlation_id]
+    ou_id = raw_event["ou_id"] if(
+        "ou_id" in raw_event) else "ou_id"   # logger_metadata[:ou_id]
+    x_request_id = raw_event["x_request_id"] if(
+        "x_request_id" in raw_event) else "x_request_id"  # logger_metadata[:x_request_id]
+    # logger_metadata[:reference_id]
+    reference_id = raw_event["reference_id"] if("reference_id" in raw_event) else "reference_id"
+    reference_type = raw_event["reference_type"] if(
+        "reference_type" in raw_event) else "reference_type"    # logger_metadata[:reference_type]
     event_type = get_event_type(level, raw_event)
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    timestamp =raw_event["timestamp"]  if(raw_event["timestamp"] != None)  else utc_time
+    timestamp = raw_event["timestamp"] if(
+        "timestamp" in raw_event) else utc_time
     details = raw_event["details"] if(
         type(raw_event["details"]) is dict) else dict({})
     service_category = raw_event["service_category"] if(
-        raw_event["service_category"] != None) else os.environ('service_category')
+        "service_category" in raw_event) else os.environ('service_category')
 
     return {
         "app_vsn": app_vsn,
@@ -222,6 +211,8 @@ def log_event(e):
 """
 
 publishMessage = PublishMessage()
+
+
 def publish_event(e):
     # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :publish) #HOW TO DO IN PYTHON
     event = {
@@ -244,14 +235,11 @@ def publish_event(e):
         "details": e["details"]
     }
 
-
     try:
         publishMessage.publish_message(event, generate_routing_key(e))
-        return "PunlishedToRabbitMQ"      
+        return "PunlishedToRabbitMQ"
     except Exception as e:
         return e
-
-
 
 
 """
@@ -276,7 +264,6 @@ def generate_routing_key(e):
     return f'{e["level_value"]}.{event_source}.{log_version}.{service_category}.{component}.{service}.{event_type}'
 
 
-
 """
   Takes level string event_map map and  returns  string
 
@@ -295,5 +282,3 @@ def get_event_type(level, event_map):
         return "Warning" if (event_map["event_type"] is None) else event_map["event_type"]
     else:
         return event_map["event_type"]
-
-
