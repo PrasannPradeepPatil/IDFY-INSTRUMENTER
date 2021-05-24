@@ -15,25 +15,42 @@ log_level_map = {
 }
 
 
-"""
-  Takes level() map raw_event , map opts,map l, string app_vsn
-  Send log to stdout and/or event bus
 
+
+
+"""
+  ## Parameters
+   - level: 'info', 'warn', 'error'
+   - raw_event: map containing the actual event
+   - opts:{async:"T/F","publish":T/F,"log":T/f}
+            async(default true) : T to publish to event bus
+            publish:(default false):T to publish to event bus
+            log(defatul true): T to publish to event bus
+    
+    -l : l is a map with following keys
+         {"app","file","line","m","f","a"}
+    -app_vsn: app version given by env var 
   ## Examples
 
-      do_log(level, raw_event, opts, l)
+      do_log("info", event, {}, {},"1.11")
        "Success"
 
       do_log(level, raw_event, opts, l)
-     [log: "Some error", publish: "Some error"]
+       "Error"
 
   """
 
 
-# level is level(); opts is keyword(String.t())
+# https://medium.com/velotio-perspectives/an-introduction-to-asynchronous-programming-in-python-af0189a88bbb
 def do_log(level, raw_event, opts, l, app_vsn):
-    asyncc = None
-    if(opts["async"] == None):
+    log = True
+    if("log" not in opts):
+        log = True
+    else:
+        log = opts["log"]
+
+    asyncc = True
+    if("async" not in opts):
         if os.environ['async'] == None:
             asyncc = True
         else:
@@ -41,34 +58,38 @@ def do_log(level, raw_event, opts, l, app_vsn):
     else:
         asyncc = opts["async"]
 
-    publish = True if(opts['publish'] == None) else opts['publish'] and (
-        os.environ['publish_enabled'] not in [False, "false"])
-
-    log = True if(opts["log"] == None) else opts["log"]
+    publish = False
+    if("publish" not in opts):
+        publish = False
+    else:
+        publish = opts['publish'] 
 
     res = parse_event(level, raw_event, l, app_vsn)
-
     if(log):
+        print("RESULT LOGGED TO CONSOLE")
         log_event(res)
     
-    if publish:
-        if asyncc:
-            t1 = threading.Thread(target=publish, args=(res,))
-            t1.start()
-            t1.join()
+    if (publish == True):
+        if (asyncc == True):
+            publish_res = publish_event(res) 
+            if(publish_res== "PunlishedToRabbitMQ"):
+                print("Published To Rabbit MQ")
+            else:
+                print("Error Publishing to RabbitMQ")  
+
         else:
             errors = []
             publish_res = publish_event(res)
-            if(publish_res == "ok"):
+            if(publish_res == "PunlishedToRabbitMQ"):
                 errors = errors
             else:
                 errors = errors + [e]
             if (errors.len == 0):
-                return "Sucess"
+                print ("Sucess")
             else:
-                return "Error"
+                print("Error")
     else:
-        return "Sucsss" 
+        print("Sucsss") 
 
 
 
@@ -77,17 +98,17 @@ def do_log(level, raw_event, opts, l, app_vsn):
 
 
 
-def publish(res):
-    if(publish_event(res) == "ok"):
-        return "sucess"
-    else:
-        return   "failed"  
 
 
 """
-  Takes level() ; raw_event map , l map , app_vasn string ;Parses the event into standard structure
+   ## Parameters
+   - level: 'info', 'warn', 'error'
+   - raw_event: map containing the actual event
+    -l : l is a map with following keys
+         {"app","file","line","m","f","a"}
+    -app_vsn: app version given by env var 
   ## Examples
-       publish_event(e) 
+       parse_event("info",event,{}."1.1") 
 """
 # Parses the event into standard structure
 
@@ -108,7 +129,7 @@ def parse_event(level, raw_event, l, app_vsn):  # level()
     # logger_metadata[:correlation_id]
     correlation_id = raw_event["correlation_id"]
     ou_id = raw_event["ou_id"]  # logger_metadata[:ou_id]
-    x_request_id = raw_event["x_request_id"]  # logger_metadata[:x_request_id]
+    x_request_id = raw_event["x_PunlishedToRabbitMQrequest_id"]  # logger_metadata[:x_request_id]
     reference_id = raw_event["reference_id"]  # logger_metadata[:reference_id]
     # logger_metadata[:reference_type]
     reference_type = raw_event["reference_type"]
@@ -135,7 +156,7 @@ def parse_event(level, raw_event, l, app_vsn):  # level()
         "reference_id": reference_id,
         "reference_type": reference_type,
         "event_type": event_type,
-        # "level": level,
+        "level": level,
         "level_value": log_level_map[level],
         "service_category": service_category,
         "event_source": event_source,
@@ -213,7 +234,7 @@ def publish_event(e):
 
     try:
         publishMessage.publish_message(event, generate_routing_key(e))
-        return "ok"      
+        return "PunlishedToRabbitMQ"      
     except Exception as e:
         return e
 
@@ -225,7 +246,7 @@ def publish_event(e):
 
   ## Examples
 
-       generate_routing_key(e) 
+       generate_routing_key(e) False
       "routing_key"
 """
 
@@ -286,5 +307,8 @@ e = {
 
 }
 
+opts = {"async":True,"publish":True,"log":True}
 
-publish_event(e)
+# publish_res =  publish_event(e)
+do_log("info",e,opts,{},"1.11")
+
