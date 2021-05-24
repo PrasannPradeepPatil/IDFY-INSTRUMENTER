@@ -56,6 +56,23 @@ def do_log(level, raw_event, opts, l, app_vsn):
             t1 = threading.Thread(target=publish, args=(res,))
             t1.start()
             t1.join()
+        else:
+            errors = []
+            publish_res = publish_event(res)
+            if(publish_res == "ok"):
+                errors = errors
+            else:
+                errors = errors + [e]
+            if (errors.len == 0):
+                return "Sucess"
+            else:
+                return "Error"
+    else:
+        return "Sucsss" 
+
+
+
+
 
 
 
@@ -63,8 +80,8 @@ def do_log(level, raw_event, opts, l, app_vsn):
 def publish(res):
     if(publish_event(res) == "ok"):
         return "sucess"
-    if(publish_event(res) == "err"):
-        return     
+    else:
+        return   "failed"  
 
 
 """
@@ -193,12 +210,14 @@ def publish_event(e):
         "details": e["details"]
     }
 
-    #   publisher =
-    #   Application.get_env(:idfy_instrumenter, :publisher) || IdfyInstrumenter.RMQ.EventsPublisher
 
-    # publisher.publish_message(event, generate_routing_key(e))
+    try:
+        publishMessage.publish_message(event, generate_routing_key(e))
+        return "ok"      
+    except Exception as e:
+        return e
 
-    publishMessage.publish_message(event, generate_routing_key(e))
+
 
 
 """
