@@ -43,7 +43,6 @@ def warn(raw_event, opts=[]):
 def error(raw_event, opts=[]):
     print("error", raw_event, opts, dir())
 
-
-
-
-
+# Get application & file name
+def macro_log(filename):
+  pass
