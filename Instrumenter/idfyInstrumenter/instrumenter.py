@@ -1,8 +1,8 @@
 import os
 from datetime import timezone
 import datetime
-import utils
-from eventPublisher import PublishMessage
+from .utils import make_routing_key_safe,event_source_routing_key,uuid4
+from .eventPublisher import PublishMessage
 import threading
 
 
@@ -14,6 +14,24 @@ log_level_map = {
     "error": "Error"
 }
 
+def publish_status(res):
+    publish_res = publish_event(res) 
+    if(publish_res== "PunlishedToRabbitMQ"):
+        print("Published To Rabbit MQ")
+    else:
+        print("Error Publishing to RabbitMQ")  
+
+def error_status(res):
+    errors = []
+    publish_res = publish_event(res)
+    if(publish_res == "PunlishedToRabbitMQ"):
+        errors = errors
+    else:
+        errors = errors + [e]
+    if (errors.len == 0):
+        print ("Sucess")
+    else:
+        print("Error")
 
 
 
@@ -41,7 +59,9 @@ log_level_map = {
   """
 
 
-# https://medium.com/velotio-perspectives/an-introduction-to-asynchronous-programming-in-python-af0189a88bbb
+
+
+
 def do_log(level, raw_event, opts, l, app_vsn):
     log = True
     if("log" not in opts):
@@ -71,25 +91,18 @@ def do_log(level, raw_event, opts, l, app_vsn):
     
     if (publish == True):
         if (asyncc == True):
-            publish_res = publish_event(res) 
-            if(publish_res== "PunlishedToRabbitMQ"):
-                print("Published To Rabbit MQ")
-            else:
-                print("Error Publishing to RabbitMQ")  
+            # https://medium.com/velotio-perspectives/an-introduction-to-asynchronous-programming-in-python-af0189a88bbb
+            t1 = threading.Thread(target=publish_status, args=(res,))
+            t1.start()   
+            t1.join()
+            # publish_status(res)  
 
         else:
-            errors = []
-            publish_res = publish_event(res)
-            if(publish_res == "PunlishedToRabbitMQ"):
-                errors = errors
-            else:
-                errors = errors + [e]
-            if (errors.len == 0):
-                print ("Sucess")
-            else:
-                print("Error")
+            error_status(res)
     else:
         print("Sucsss") 
+
+
 
 
 
@@ -129,7 +142,7 @@ def parse_event(level, raw_event, l, app_vsn):  # level()
     # logger_metadata[:correlation_id]
     correlation_id = raw_event["correlation_id"]
     ou_id = raw_event["ou_id"]  # logger_metadata[:ou_id]
-    x_request_id = raw_event["x_PunlishedToRabbitMQrequest_id"]  # logger_metadata[:x_request_id]
+    x_request_id = raw_event["x_request_id"]  # logger_metadata[:x_request_id]
     reference_id = raw_event["reference_id"]  # logger_metadata[:reference_id]
     # logger_metadata[:reference_type]
     reference_type = raw_event["reference_type"]
@@ -144,7 +157,7 @@ def parse_event(level, raw_event, l, app_vsn):  # level()
 
     return {
         "app_vsn": app_vsn,
-        "eid": utils.uuid4(),
+        "eid": uuid4(),
         "component": component,
         "service": service,
         "event_value": event_value,
@@ -252,13 +265,13 @@ def publish_event(e):
 
 
 def generate_routing_key(e):
-    event_source = utils.make_routing_key_safe(
-        utils.event_source_routing_key(e["event_source"]))
-    service_category = utils.make_routing_key_safe(e["service_category"])
-    component = utils.make_routing_key_safe(e["component"])
-    service = utils.make_routing_key_safe(e["service"])
-    event_type = utils.make_routing_key_safe(e["event_type"])
-    log_version = utils.make_routing_key_safe(e["log_version"])
+    event_source = make_routing_key_safe(
+        event_source_routing_key(e["event_source"]))
+    service_category = make_routing_key_safe(e["service_category"])
+    component = make_routing_key_safe(e["component"])
+    service = make_routing_key_safe(e["service"])
+    event_type = make_routing_key_safe(e["event_type"])
+    log_version = make_routing_key_safe(e["log_version"])
 
     return f'{e["level_value"]}.{event_source}.{log_version}.{service_category}.{component}.{service}.{event_type}'
 
@@ -283,32 +296,4 @@ def get_event_type(level, event_map):
     else:
         return event_map["event_type"]
 
-
-########################DRIVER CODE############################
-e = {
-    "app_vsn": "app_vsn",
-    "eid": "eid",
-    "timestamp": "timestamp",
-    "x_request_id": "x_request_id",
-    "event_source": "event_source",
-    "log_level": "level_value",
-    "service_category": "service_category",
-    "ou_id": "ou_id",
-    "correlation_id": "correlation_id",
-    "reference_id": "reference_id",
-    "reference_type": "reference_type",
-    "component": "component",
-    "service": "service",
-    "event_type": "event_type",
-    "event_value": "event_value",
-    "log_version": "log_version",
-    "details": "details",
-    "level_value": "level_value"
-
-}
-
-opts = {"async":True,"publish":True,"log":True}
-
-# publish_res =  publish_event(e)
-do_log("info",e,opts,{},"1.11")
 
