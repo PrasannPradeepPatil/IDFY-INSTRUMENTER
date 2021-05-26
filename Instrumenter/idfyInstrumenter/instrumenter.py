@@ -3,6 +3,10 @@ from datetime import timezone
 import datetime
 from .utils import make_routing_key_safe, event_source_routing_key, uuid4
 from .eventPublisher import PublishMessage
+
+
+ 
+
 import threading
 
 
@@ -112,7 +116,7 @@ def do_log(level, raw_event, opts, l, app_vsn):
 # Parses the event into standard structure
 
 
-def parse_event(level, raw_event, l, app_vsn):  # level()
+def parse_event(level, raw_event, l, app_vsn): 
     event_source = raw_event["event_source"] if(
         "event_source" in raw_event) else f'({l["app"]}) {l["file"]}: {l["line"]}: {l["m"]}.{l["f"]}/{l["a"]}'
 
@@ -130,8 +134,8 @@ def parse_event(level, raw_event, l, app_vsn):  # level()
         "ou_id" in raw_event) else "ou_id"   # logger_metadata[:ou_id]
     x_request_id = raw_event["x_request_id"] if(
         "x_request_id" in raw_event) else "x_request_id"  # logger_metadata[:x_request_id]
-    # logger_metadata[:reference_id]
-    reference_id = raw_event["reference_id"] if("reference_id" in raw_event) else "reference_id"
+
+    reference_id = raw_event["reference_id"] if("reference_id" in raw_event) else "reference_id"     # logger_metadata[:reference_id]
     reference_type = raw_event["reference_type"] if(
         "reference_type" in raw_event) else "reference_type"    # logger_metadata[:reference_type]
     event_type = get_event_type(level, raw_event)
@@ -282,3 +286,23 @@ def get_event_type(level, event_map):
         return "Warning" if (event_map["event_type"] is None) else event_map["event_type"]
     else:
         return event_map["event_type"]
+
+# https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
+
+def formatTimeStamp(opts):
+    if(opts == "local"):
+        local     = datetime.datetime.now()
+        return local
+    if(opts == "utc"):
+        utc       = datetime.datetime.utcnow()
+        return utc
+    if(opts == "iso_local"):
+        iso_local = datetime.datetime.now().isoformat() 
+        return iso_local
+    if(opts == "iso_utc"):
+        iso_utc   = datetime.datetime.utcnow().isoformat() 
+        return iso_utc
+
+
+
+
