@@ -240,7 +240,8 @@ def publish_event(e):
     }
 
     try:
-        publishMessage.publish_message(event, generate_routing_key(e))
+        while(True):
+            publishMessage.publish_message(event, generate_routing_key(e))
         return "PunlishedToRabbitMQ"
     except Exception as e:
         return e
