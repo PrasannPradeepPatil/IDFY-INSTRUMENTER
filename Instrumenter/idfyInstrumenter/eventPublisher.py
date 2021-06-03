@@ -18,9 +18,19 @@ sudo docker run --rm -it --name my-rabbit --hostname my-rabbit -p 15672:15672 -p
 
 '''
 
+def singleton(class_):
+    # https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
+    instances = {}
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+    return getinstance
+
+
+@singleton
 class PublishMessage:
 
-    
 
     def __init__(self):      
         self.connection = None
