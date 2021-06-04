@@ -28,11 +28,24 @@ def singleton(class_):
     return getinstance
 
 
-@singleton
+# @singleton
 class PublishMessage:
+    __instance = None
+    @staticmethod 
+    def getInstance():
+      """ Static access method. """
+      if PublishMessage.__instance == None:
+         PublishMessage()
+      return PublishMessage.__instance
 
 
-    def __init__(self):      
+    def __init__(self):   
+        """ Virtually private constructor. """
+        if PublishMessage.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            PublishMessage.__instance = self
+   
         self.connection = None
         self.channel = None
         self.connect_RMQ()
