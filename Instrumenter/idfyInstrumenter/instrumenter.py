@@ -1,35 +1,31 @@
 import os
 from datetime import timezone
 import datetime
-from .utils import make_routing_key_safe, event_source_routing_key, uuid4
+from .utils import makeRoutingKeySafe, eventSourceRoutingKey, uuid4
 from .eventPublisher import PublishMessage
-
-
- 
-
 import threading
 
 
-# log level
-log_level_map = {
+
+logLlevelMap = {
     "info": "Info",
     "warn": "Warning",
     "error": "Error"
 }
 
 
-def publish_status(res):
-    publish_res = publish_event(res)
-    if(publish_res == "PunlishedToRabbitMQ"):
+def publishStatus(res):
+    publishRes = publishEvent(res)
+    if(publishRes == "PunlishedToRabbitMQ"):
         print("Published To Rabbit MQ")
     else:
         print("Error Publishing to RabbitMQ")
 
 
-def error_status(res):
+def errorStatus(res):
     errors = []
-    publish_res = publish_event(res)
-    if(publish_res == "PunlishedToRabbitMQ"):
+    publishRes = publishEvent(res)
+    if(publishRes == "PunlishedToRabbitMQ"):
         errors = errors
     else:
         errors = errors + [e]
@@ -42,7 +38,7 @@ def error_status(res):
 """
   ## Parameters
    - level: 'info', 'warn', 'error'
-   - raw_event: map containing the actual event
+   - rawEvent: map containing the actual event
    - opts:{async:"T/F","publish":T/F,"log":T/f}
             async(default true) : T to publish to event bus
             publish:(default false):T to publish to event bus
@@ -50,19 +46,19 @@ def error_status(res):
     
     -l : l is a map with following keys
          {"app","file","line","m","f","a"}
-    -app_vsn: app version given by env var 
+    -appVsn: app version given by env var 
   ## Examples
 
-      do_log("info", event, {}, {},"1.11")
+      doLog("info", event, {}, {},"1.11")
        "Success"
 
-      do_log(level, raw_event, opts, l)
+      doLog(level, rawEvent, opts, l)
        "Error"
 
   """
 
 
-def do_log(level, raw_event, opts, l, app_vsn):
+def doLog(level, rawEvent, opts, l, appVsn):
     log = True
     if("log" not in opts):
         log = True
@@ -84,21 +80,20 @@ def do_log(level, raw_event, opts, l, app_vsn):
     else:
         publish = opts['publish']
 
-    res = parse_event(level, raw_event, l, app_vsn)
+    res = parseEvent(level, rawEvent, l, appVsn)
     if(log):
         print("RESULT LOGGED TO CONSOLE")
-        log_event(res)
+        logEvent(res)
 
     if (publish == True):
         if (asyncc == True):
-            # https://medium.com/velotio-perspectives/an-introduction-to-asynchronous-programming-in-python-af0189a88bbb
-            t1 = threading.Thread(target=publish_status, args=(res,))
+            t1 = threading.Thread(target=publishStatus, args=(res,))
             t1.start()
             t1.join()
-            # publish_status(res)
+            # publishStatus(res)
 
         else:
-            error_status(res)
+            errorStatus(res)
     else:
         print("Sucsss")
 
@@ -106,67 +101,66 @@ def do_log(level, raw_event, opts, l, app_vsn):
 """
    ## Parameters
    - level: 'info', 'warn', 'error'
-   - raw_event: map containing the actual event
+   - rawEvent: map containing the actual event
     -l : l is a map with following keys
          {"app","file","line","m","f","a"}
-    -app_vsn: app version given by env var 
+    -appVsn: app version given by env var 
   ## Examples
-       parse_event("info",event,{}."1.1") 
+       parseEvent("info",event,{}."1.1") 
 """
 # Parses the event into standard structure
 
 
-def parse_event(level, raw_event, l, app_vsn): 
-    event_source = raw_event["event_source"] if(
-        "event_source" in raw_event) else f'({l["app"]}) {l["file"]}: {l["line"]}: {l["m"]}.{l["f"]}/{l["a"]}'
+def parseEvent(level, rawEvent, l, appVsn): 
+    eventSource = rawEvent["eventSource"] if(
+        "eventSource" in rawEvent) else f'({l["app"]}) {l["file"]}: {l["line"]}: {l["m"]}.{l["f"]}/{l["a"]}'
 
-    app_vsn = raw_event["app_vsn"] if("app_vsn" in raw_event) else app_vsn
-    component = raw_event["component"] if(
-        "component" in raw_event) else os.environ['component']
-    service = raw_event["service"] if(
-        "service" in raw_event) else os.environ['service']
-    event_value = raw_event["event_value"] if(
-        "event_value" in raw_event) else raw_event["event_name"]
-    # logger_metadata = Logger.metadata()
-    correlation_id = raw_event["correlation_id"] if(
-        "correlation_id" in raw_event) else "correlation_id"  # logger_metadata[:correlation_id]
-    ou_id = raw_event["ou_id"] if(
-        "ou_id" in raw_event) else "ou_id"   # logger_metadata[:ou_id]
-    x_request_id = raw_event["x_request_id"] if(
-        "x_request_id" in raw_event) else "x_request_id"  # logger_metadata[:x_request_id]
+    appVsn = rawEvent["appVsn"] if("appVsn" in rawEvent) else appVsn
+    component = rawEvent["component"] if(
+        "component" in rawEvent) else os.environ['component']
+    service = rawEvent["service"] if(
+        "service" in rawEvent) else os.environ['service']
+    eventValue = rawEvent["eventValue"] if(
+        "eventValue" in rawEvent) else rawEvent["eventName"]
+    correlationId = rawEvent["correlationId"] if(
+        "correlationId" in rawEvent) else "correlationId"  # logger_metadata[:correlationId]
+    ouId = rawEvent["ouId"] if(
+        "ouId" in rawEvent) else "ouId"   # logger_metadata[:ouId]
+    xRequestId = rawEvent["xRequestId"] if(
+        "xRequestId" in rawEvent) else "xRequestId"  # logger_metadata[:xRequestId]
 
-    reference_id = raw_event["reference_id"] if("reference_id" in raw_event) else "reference_id"     # logger_metadata[:reference_id]
-    reference_type = raw_event["reference_type"] if(
-        "reference_type" in raw_event) else "reference_type"    # logger_metadata[:reference_type]
-    event_type = get_event_type(level, raw_event)
+    referenceId = rawEvent["referenceId"] if("referenceId" in rawEvent) else "referenceId"     # logger_metadata[:referenceId]
+    referenceType = rawEvent["referenceType"] if(
+        "referenceType" in rawEvent) else "referenceType"    # logger_metadata[:referenceType]
+    eventType = getEventType(level, rawEvent)
     dt = datetime.datetime.now(timezone.utc)
-    utc_time = dt.replace(tzinfo=timezone.utc)
-    timestamp = raw_event["timestamp"] if(
-        "timestamp" in raw_event) else utc_time
-    details = raw_event["details"] if(
-        type(raw_event["details"]) is dict) else dict({})
-    service_category = raw_event["service_category"] if(
-        "service_category" in raw_event) else os.environ('service_category')
+    utcTime = dt.replace(tzinfo=timezone.utc)
+    timestamp = rawEvent["timestamp"] if(
+        "timestamp" in rawEvent) else utcTime
+    details = rawEvent["details"] if(
+        type(rawEvent["details"]) is dict) else dict({})
+    serviceCategory = rawEvent["serviceCategory"] if(
+        "serviceCategory" in rawEvent) else os.environ('serviceCategory')
 
     return {
-        "app_vsn": app_vsn,
+        "appVsn": appVsn,
         "eid": uuid4(),
         "component": component,
         "service": service,
-        "event_value": event_value,
-        "correlation_id": correlation_id,
-        "ou_id": ou_id,
-        "x_request_id": x_request_id,
+        "eventValue": eventValue,
+        "correlationId": correlationId,
+        "ouId": ouId,
+        "xRequestId": xRequestId,
         "timestamp": timestamp,
         "details": details,
-        "reference_id": reference_id,
-        "reference_type": reference_type,
-        "event_type": event_type,
+        "referenceId": referenceId,
+        "referenceType": referenceType,
+        "eventType": eventType,
         "level": level,
-        "level_value": log_level_map[level],
-        "service_category": service_category,
-        "event_source": event_source,
-        "log_version": raw_event["log_version"]
+        "levelValue": logLlevelMap[level],
+        "serviceCategory": serviceCategory,
+        "eventSource": eventSource,
+        "logVersion": rawEvent["logVersion"]
     }
 
 
@@ -174,32 +168,32 @@ def parse_event(level, raw_event, l, app_vsn):
   Takes map ; publishes event to console
 
   ## Examples
-       publish_event(e) 
+       publishEvent(e) 
 """
 
 
-def log_event(e):
-    # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :log) #HOW TO DO IN PYTHON
-    message = f'{e["reference_id"]}: {e["service"]} -> {e["event_type"]} - {e["event_value"]}'
+def logEvent(e):
+    # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :log) 
+    message = f'{e["referenceId"]}: {e["service"]} -> {e["eventType"]} - {e["eventValue"]}'
 
     event = {
-        "app_vsn": e["app_vsn"],
+        "appVsn": e["appVsn"],
         "eid": e["eid"],
         #   "timestamp" : timestamp,
-        "x_request_id": e["x_request_id"],
-        "event_source": e["event_source"],
-        "log_level": e["level_value"],
-        "service_category": e["service_category"],
-        "ou_id": e["ou_id"],
-        "correlation_id": e["correlation_id"],
-        "reference_id": e["reference_id"],
-        "reference_type": e["reference_type"],
+        "xRequestId": e["xRequestId"],
+        "eventSource": e["eventSource"],
+        "logLlevel": e["levelValue"],
+        "serviceCategory": e["serviceCategory"],
+        "ouId": e["ouId"],
+        "correlationId": e["correlationId"],
+        "referenceId": e["referenceId"],
+        "referenceType": e["referenceType"],
         "component": e["component"],
         "service": e["service"],
-        "event_type": e["event_type"],
-        "event_name": e["event_value"],
+        "eventType": e["eventType"],
+        "eventName": e["eventValue"],
         #   "details" : Jason.encode!(e[details),
-        "log_version": e["log_version"],
+        "logVersion": e["logVersion"],
         "message": message
     }
 
@@ -211,37 +205,37 @@ def log_event(e):
   Takes map ; publishes event to event bus
 
   ## Examples
-       publish_event(e) 
+       publishEvent(e) 
 """
 
 publishMessage = PublishMessage()
 
 
-def publish_event(e):
-    # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :publish) #HOW TO DO IN PYTHON
+def publishEvent(e):
+    # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :publish) 
     event = {
-        "app_vsn": e["app_vsn"],
+        "appVsn": e["appVsn"],
         "eid": e["eid"],
         # "timestamp" : timestamp,
-        "x_request_id": e["x_request_id"],
-        "event_source": e["event_source"],
-        "log_level": e["level_value"],
-        "service_category": e["service_category"],
-        "ou_id": e["ou_id"],
-        "correlation_id": e["correlation_id"],
-        "reference_id": e["reference_id"],
-        "reference_type": e["reference_type"],
+        "xRequestId": e["xRequestId"],
+        "eventSource": e["eventSource"],
+        "logLlevel": e["levelValue"],
+        "serviceCategory": e["serviceCategory"],
+        "ouId": e["ouId"],
+        "correlationId": e["correlationId"],
+        "referenceId": e["referenceId"],
+        "referenceType": e["referenceType"],
         "component": e["component"],
         "service": e["service"],
-        "event_type": e["event_type"],
-        "event_value": e["event_value"],
-        "log_version": e["log_version"],
+        "eventType": e["eventType"],
+        "eventValue": e["eventValue"],
+        "logVersion": e["logVersion"],
         "details": e["details"]
     }
 
     try:
         while(True):
-            publishMessage.publish_message(event, generate_routing_key(e))
+            publishMessage.publishMessage(event, generateRoutingKey(e))
         return "PunlishedToRabbitMQ"
     except Exception as e:
         return e
@@ -252,43 +246,43 @@ def publish_event(e):
 
   ## Examples
 
-       generate_routing_key(e) False
-      "routing_key"
+       generateRoutingKey(e) False
+      "routingKey"
 """
 
 
-def generate_routing_key(e):
-    event_source = make_routing_key_safe(
-        event_source_routing_key(e["event_source"]))
-    service_category = make_routing_key_safe(e["service_category"])
-    component = make_routing_key_safe(e["component"])
-    service = make_routing_key_safe(e["service"])
-    event_type = make_routing_key_safe(e["event_type"])
-    log_version = make_routing_key_safe(e["log_version"])
+def generateRoutingKey(e):
+    eventSource = makeRoutingKeySafe(
+        eventSourceRoutingKey(e["eventSource"]))
+    serviceCategory = makeRoutingKeySafe(e["serviceCategory"])
+    component = makeRoutingKeySafe(e["component"])
+    service = makeRoutingKeySafe(e["service"])
+    eventType = makeRoutingKeySafe(e["eventType"])
+    logVersion = makeRoutingKeySafe(e["logVersion"])
 
-    return f'{e["level_value"]}.{event_source}.{log_version}.{service_category}.{component}.{service}.{event_type}'
+    return f'{e["levelValue"]}.{eventSource}.{logVersion}.{serviceCategory}.{component}.{service}.{eventType}'
 
 
 """
-  Takes level string event_map map and  returns  string
+  Takes level string eventMap map and  returns  string
 
   ## Examples
 
-       get_event_type("error",{}) 
-      "routing_key"
+       getEventType("error",{}) 
+      "routingKey"
 
 """
 
 
-def get_event_type(level, event_map):
+def getEventType(level, eventMap):
     if(level == "error"):
-        return "Exception" if (event_map["event_type"] is None) else event_map["event_type"]
+        return "Exception" if (eventMap["eventType"] is None) else eventMap["eventType"]
     if(level == "warn"):
-        return "Warning" if (event_map["event_type"] is None) else event_map["event_type"]
+        return "Warning" if (eventMap["eventType"] is None) else eventMap["eventType"]
     else:
-        return event_map["event_type"]
+        return eventMap["eventType"]
 
-# https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
+
 
 def formatTimeStamp(opts):
     if(opts == "local"):
@@ -297,12 +291,12 @@ def formatTimeStamp(opts):
     if(opts == "utc"):
         utc       = datetime.datetime.utcnow()
         return utc
-    if(opts == "iso_local"):
-        iso_local = datetime.datetime.now().isoformat() 
-        return iso_local
-    if(opts == "iso_utc"):
-        iso_utc   = datetime.datetime.utcnow().isoformat() 
-        return iso_utc
+    if(opts == "isoLocal"):
+        isoLocal = datetime.datetime.now().isoformat() 
+        return isoLocal
+    if(opts == "isoUtc"):
+        isoUtc   = datetime.datetime.utcnow().isoformat() 
+        return isoUtc
 
 
 

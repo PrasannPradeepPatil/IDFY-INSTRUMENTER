@@ -4,14 +4,14 @@ import uuid
   Takes str,ch(optional) ; replace `.` with `+` char for routing key. Also replaces nil with "null" and returns string 
 
   ## Examples
-      make_routing_key_safe("ab.c.d")
+      makeRoutingKeySafe("ab.c.d")
       "ab+c+d"
 
-      make_routing_key_safe(nil)
+      makeRoutingKeySafe(nil)
       "null"
 
 '''
-def make_routing_key_safe(s,ch="+"):
+def makeRoutingKeySafe(s,ch="+"):
     if(isinstance(s, str)):
         if(str == None):
             return "null"
@@ -25,20 +25,20 @@ def make_routing_key_safe(s,ch="+"):
 
   ## Examples
 
-      event_source_routing_key("Capture")
+      eventSourceRoutingKey("Capture")
       "Capture"
 
-      event_source_routing_key("(ms_connection_check) lib/ms_connection_check/media_server.ex:150: Elixir.MsConnectionCheck.MediaServer.attempt_room_creation/4")
+      eventSourceRoutingKey("(ms_connection_check) lib/ms_connection_check/media_server.ex:150: Elixir.MsConnectionCheck.MediaServer.attempt_room_creation/4")
       "null"
 """
-def event_source_routing_key(events):
+def eventSourceRoutingKey(events):
     if(isinstance(events, str)):
         if(events.startswith("(")):
             return "null"
         else:
             return events    
     else:
-        return "event_source_routing_key takes (String) as arguement"
+        return "eventSourceRoutingKey takes (String) as arguement"
 
 
 """

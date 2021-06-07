@@ -3,9 +3,9 @@
 
   ## Examples
 
-      ipublish_message({}, "")
+      publishMessage({}, "")
       {:ok, "Success"} OR   {:error, {:error_name, "Reason"}}
   """
-def publish_message(message_map,routing_key):
+def publishMessage(message_map,routing_key):
     pass
 

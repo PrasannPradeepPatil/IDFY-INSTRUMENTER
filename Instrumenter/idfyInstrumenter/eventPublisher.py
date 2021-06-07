@@ -4,22 +4,9 @@ import sys
 import json
 from pika import connection
 
-'''
-1.SELECTION CONNECTION 
-https://stackoverflow.com/questions/30332320/how-to-do-a-simple-pika-selectconnection-to-send-a-message-in-python
 
-
-2.BLOACKING CONNECTTION
-https://pika.readthedocs.io/en/stable/examples/heartbeat_and_blocked_timeouts.html
-https://stackoverflow.com/questions/46053349/keep-pika-blockingconnection-alive-without-disabling-heartbeat
-https://stackoverflow.com/questions/56322608/allow-rabbitmq-and-pika-maintain-the-conection-always-open
-
-sudo docker run --rm -it --name my-rabbit --hostname my-rabbit -p 15672:15672 -p 5672:5672 rabbitmq:3-management
-
-'''
 
 def singleton(class_):
-    # https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
     instances = {}
     def getinstance(*args, **kwargs):
         if class_ not in instances:
@@ -48,10 +35,10 @@ class PublishMessage:
    
         self.connection = None
         self.channel = None
-        self.connect_RMQ()
+        self.connectRMQ()
 
 
-    def connect_RMQ(self):
+    def connectRMQ(self):
         try:
         
             self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -60,20 +47,16 @@ class PublishMessage:
         except Exception as e:
             print("Connection Failed due to: ", e)
 
-    # def reconnect_RMQ(self):
-    #     print("RECONNECTING TO RMQ......")
-    #     self.connect_RMQ(callback=None)
-  
- 
+
     
     
-    def publish_message(self,message_map,routing_key):    
+    def publishMessage(self,messageMap,routingKey):    
         if not self.connection or self.connection.is_closed:
-            self.connect_RMQ()
+            self.connectRMQ()
         
-        message_map  = json.dumps(message_map).encode('utf-8')                                              
-        self.channel.basic_publish(exchange='idfy-instrumenter', routing_key=routing_key, body=message_map)
-        print(" [x] Sent %r:%r" % (routing_key, message_map))
+        messageMap  = json.dumps(messageMap).encode('utf-8')                                              
+        self.channel.basic_publish(exchange='idfy-instrumenter', routing_key=routingKey, body=messageMap)
+        print(" [x] Sent %r:%r" % (routingKey, messageMap))
 
 
     
