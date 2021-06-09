@@ -1,12 +1,10 @@
-from setuptools import setup
+import setuptools
 
-setup(
-   name='IDFYINSTRUMENTER',
-   version='1.0',
-   description='Idfy Instrumenter that takes logs and publishes them to RABBITMQ as well as the console',
-   author='Prasann Patil',
+setuptools.setup(
+   name='idfyinstrumenter',
+   version='0.0.1',
    author_email='prasann@flairlabs.com',
-   packages=['IDFYINSTRUMENTER'],  #same as name
+   packages=setuptools.find_packages(),  #same as name
    install_requires=['pika'], #external packages as dependencies
 )
 
