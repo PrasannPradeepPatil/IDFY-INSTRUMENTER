@@ -16,29 +16,29 @@ def singleton(class_):
 
 
 # @singleton
-class PublishMessage:
+class publish_message:
     __instance = None
     @staticmethod 
     def getInstance():
       """ Static access method. """
-      if PublishMessage.__instance == None:
-         PublishMessage()
-      return PublishMessage.__instance
+      if publish_message.__instance == None:
+         publish_message()
+      return publish_message.__instance
 
 
     def __init__(self):   
         """ Virtually private constructor. """
-        if PublishMessage.__instance != None:
+        if publish_message.__instance != None:
             raise Exception("This class is a singleton!")
         else:
-            PublishMessage.__instance = self
+            publish_message.__instance = self
    
         self.connection = None
         self.channel = None
-        self.connectRMQ()
+        self.connect_rmq()
 
 
-    def connectRMQ(self):
+    def connect_rmq(self):
         try:
         
             self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -50,9 +50,9 @@ class PublishMessage:
 
     
     
-    def publishMessage(self,messageMap,routingKey):    
+    def publish_message(self,messageMap,routingKey):    
         if not self.connection or self.connection.is_closed:
-            self.connectRMQ()
+            self.connect_rmq()
         
         messageMap  = json.dumps(messageMap).encode('utf-8')                                              
         self.channel.basic_publish(exchange='idfy-instrumenter', routing_key=routingKey, body=messageMap)

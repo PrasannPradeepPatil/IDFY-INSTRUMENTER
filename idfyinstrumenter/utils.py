@@ -4,20 +4,20 @@ import uuid
   Takes str,ch(optional) ; replace `.` with `+` char for routing key. Also replaces nil with "null" and returns string 
 
   ## Examples
-      makeRoutingKeySafe("ab.c.d")
+      make_routing_key_safe("ab.c.d")
       "ab+c+d"
 
-      makeRoutingKeySafe(nil)
+      make_routing_key_safe(nil)
       "null"
 
 '''
-def makeRoutingKeySafe(s,ch="+"):
+def make_routing_key_safe(s,ch="+"):
     if(isinstance(s, str)):
         if(str == None):
             return "null"
         return s.replace(".",ch)
     else:
-        return "makeRoutingKeySafe Takes (String , char='+' ) as arguement"
+        return "make_routing_key_safe Takes (String , char='+' ) as arguement"
 
     
 """
@@ -25,20 +25,20 @@ def makeRoutingKeySafe(s,ch="+"):
 
   ## Examples
 
-      eventSourceRoutingKey("Capture")
+      event_source_routing_key("Capture")
       "Capture"
 
-      eventSourceRoutingKey("(ms_connection_check) lib/ms_connection_check/media_server.ex:150: Elixir.MsConnectionCheck.MediaServer.attempt_room_creation/4")
+      event_source_routing_key("(ms_connection_check) lib/ms_connection_check/media_server.ex:150: Elixir.MsConnectionCheck.MediaServer.attempt_room_creation/4")
       "null"
 """
-def eventSourceRoutingKey(events):
+def event_source_routing_key(events):
     if(isinstance(events, str)):
         if(events.startswith("(")):
             return "null"
         else:
             return events    
     else:
-        return "eventSourceRoutingKey takes (String) as arguement"
+        return "event_source_routing_key takes (String) as arguement"
 
 
 """
