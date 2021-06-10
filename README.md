@@ -27,7 +27,7 @@ Used for structured logging in stdout & publishing events to event bus
 |async                  |bool           |`true`                               |Publish logs in a new process      |
 |publish_enabled        |bool/string    |`true`                               |Enable/Disable publish to event bus|
 |exchange               |string         |idfy-instrumenter                    |Configure RMQ Exchange             |
-|publisher              |atom           |event_publisher                      |Configure custom RMQ publisher     |
+|publisher              |String         |event_publisher                      |Configure custom RMQ publisher     |
 
 
 
