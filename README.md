@@ -27,16 +27,8 @@ Used for structured logging in stdout & publishing events to event bus
 |async                  |bool           |`true`                               |Publish logs in a new process      |
 |publish_enabled        |bool/string    |`true`                               |Enable/Disable publish to event bus|
 |exchange               |string         |idfy-instrumenter                    |Configure RMQ Exchange             |
-|publisher              |atom           |IdfyInstrumenter.RMQ.EventsPublisher |Configure custom RMQ publisher     |
+|publisher              |atom           |event_publisher                      |Configure custom RMQ publisher     |
 
-### Sample
-
-```python
-config :idfy_instrumenter,
-  amqp_url: "url",
-  service_category: "AssistedVideo",
-  component: "WorkHandler"
-```
 
 
 ### Fields
