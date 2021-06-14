@@ -1,6 +1,7 @@
 import os
 from datetime import timezone
 import datetime
+import json
 from .utils import make_routing_key_safe, event_source_routing_key, uuid4
 from .event_publisher import publish_message
 import threading
@@ -121,15 +122,15 @@ def parse_event(level, raw_event, l, app_vsn):
     service = raw_event["service"] if(
         "service" in raw_event) else os.environ['service']
     event_value = raw_event["event_value"] if(
-        "event_value" in raw_event) else raw_event["eventName"]
+        "event_value" in raw_event) else raw_event["event_name"]
     correlation_id = raw_event["correlation_id"] if(
         "correlation_id" in raw_event) else "correlation_id"  # logger_metadata[:correlation_id]
     ou_id = raw_event["ou_id"] if(
         "ou_id" in raw_event) else "ou_id"   # logger_metadata[:ou_id]
-    x_equest_id = raw_event["x_equest_id"] if(
-        "x_equest_id" in raw_event) else "x_equest_id"  # logger_metadata[:x_equest_id]
+    x_request_id = raw_event["x_request_id"] if(
+        "x_request_id" in raw_event) else "x_request_id"  # logger_metadata[:x_request_id]
 
-    referenceI_id = raw_event["referenceI_id"] if("referenceI_id" in raw_event) else "referenceI_id"     # logger_metadata[:referenceI_id]
+    reference_id = raw_event["reference_id"] if("reference_id" in raw_event) else "reference_id"     # logger_metadata[:reference_id]
     reference_type = raw_event["reference_type"] if(
         "reference_type" in raw_event) else "reference_type"    # logger_metadata[:reference_type]
     event_type = getevent_type(level, raw_event)
@@ -150,10 +151,10 @@ def parse_event(level, raw_event, l, app_vsn):
         "event_value": event_value,
         "correlation_id": correlation_id,
         "ou_id": ou_id,
-        "x_equest_id": x_equest_id,
+        "x_request_id": x_request_id,
         "timestamp": timestamp,
         "details": details,
-        "referenceI_id": referenceI_id,
+        "reference_id": reference_id,
         "reference_type": reference_type,
         "event_type": event_type,
         "level": level,
@@ -173,26 +174,26 @@ def parse_event(level, raw_event, l, app_vsn):
 
 
 def log_event(e):
-    # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :log) 
-    message = f'{e["referenceI_id"]}: {e["service"]} -> {e["event_type"]} - {e["event_value"]}'
+    timestamp =format_time_stamp(e["timestamp"])
+    message = f'{e["reference_id"]}: {e["service"]} -> {e["event_type"]} - {e["event_value"]}'
 
     event = {
         "app_vsn": e["app_vsn"],
         "eid": e["eid"],
-        #   "timestamp" : timestamp,
-        "x_equest_id": e["x_equest_id"],
+        "timestamp" : timestamp,
+        "x_request_id": e["x_request_id"],
         "event_source": e["event_source"],
-        "logLlevel": e["level_value"],
+        "log_level": e["level_value"],
         "service_category": e["service_category"],
         "ou_id": e["ou_id"],
         "correlation_id": e["correlation_id"],
-        "referenceI_id": e["referenceI_id"],
+        "reference_id": e["reference_id"],
         "reference_type": e["reference_type"],
         "component": e["component"],
         "service": e["service"],
         "event_type": e["event_type"],
-        "eventName": e["event_value"],
-        #   "details" : Jason.encode!(e[details),
+        "event_name": e["event_value"],
+        "details" :json.dumps(e["details"]),
         "log_version": e["log_version"],
         "message": message
     }
@@ -212,18 +213,18 @@ publish_message = publish_message()
 
 
 def publish_event(e):
-    # timestamp = IdfyInstrumenter.format_timestamp(e[timestamp, :publish) 
+    timestamp =format_time_stamp(e["timestamp"])
     event = {
         "app_vsn": e["app_vsn"],
         "eid": e["eid"],
-        # "timestamp" : timestamp,
-        "x_equest_id": e["x_equest_id"],
+        "timestamp" : timestamp,
+        "x_request_id": e["x_request_id"],
         "event_source": e["event_source"],
-        "logLlevel": e["level_value"],
+        "log_level": e["level_value"],
         "service_category": e["service_category"],
         "ou_id": e["ou_id"],
         "correlation_id": e["correlation_id"],
-        "referenceI_id": e["referenceI_id"],
+        "reference_id": e["reference_id"],
         "reference_type": e["reference_type"],
         "component": e["component"],
         "service": e["service"],

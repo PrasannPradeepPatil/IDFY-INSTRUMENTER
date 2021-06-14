@@ -46,25 +46,26 @@ Used for structured logging in stdout & publishing events to event bus
   
     def i_need_some_instrumentation:
         e = {
-            "app_vsn": "app_vsn",
-            "eid": "eid",
-            "timestamp": "timestamp",
-            "x_equest_id": "x_equest_id",
-            "event_source": "event_source",
-            "logLevel": "level_value",
-            "service_category": "service_category",
-            "ou_id": "ou_id",
-            "correlation_id": "correlation_id",
-            "referenceI_id": "referenceI_id",
-            "reference_type": "reference_type",
-            "component": "component",
-            "service": "service",
-            "event_type": "event_type",
-            "event_value": "event_value",
-            "log_version": "log_version",
-            "details": "details",
-            "level_value": "level_value"
-            }
+        "app_vsn": "app_vsn",
+        "eid": "eid",
+        "timestamp": "isoUtc",
+        "x_request_id": "x_request_id",
+        "event_source": "event_source",
+        "logLevel": "level_value",
+        "service_category": "service_category",
+        "ou_id": "ou_id",
+        "correlation_id": "correlation_id",
+        "reference_id": "reference_id",
+        "reference_type": "reference_type",
+        "component": "component",
+        "service": "service",
+        "event_type": "event_type",
+        "event_value": "event_value",
+        "log_version": "log_version",
+        "details": "details",
+        "details" : {"key1" : "value1"},
+        "level_value": "level_value"
+        }
         opts = {"async":True,"publish":True,"log":True}
         info("info",e,opts,{},"1.11")
    
