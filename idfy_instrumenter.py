@@ -52,5 +52,3 @@ def error(level, raw_event, opts, l,app_vsn):
     logger(level, raw_event, opts, l,app_vsn)
 
 
-
-###################DRIVER CODE ##########################
