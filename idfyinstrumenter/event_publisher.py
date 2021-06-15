@@ -2,6 +2,7 @@
 import pika
 import sys
 import json
+import logging
 from pika import connection
 
 
@@ -45,7 +46,7 @@ class publish_message:
             self.channel = self.connection.channel()
             self.channel.exchange_declare(exchange='idfy-instrumenter', exchange_type='topic',durable=True)
         except Exception as e:
-            print("Connection Failed due to: ", e)
+            logging.error("Connection Failed due to: ", e)
 
 
     
@@ -56,7 +57,7 @@ class publish_message:
         
         messageMap  = json.dumps(messageMap).encode('utf-8')                                              
         self.channel.basic_publish(exchange='idfy-instrumenter', routing_key=routingKey, body=messageMap)
-        print(" [x] Sent %r:%r" % (routingKey, messageMap))
+        logging.info(" [x] Sent %r:%r" % (routingKey, messageMap))
 
 
     

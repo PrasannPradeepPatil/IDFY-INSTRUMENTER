@@ -51,7 +51,8 @@ def event_source_routing_key(events):
 """
 def uuid4():
     id = str(uuid.uuid4())
-    print(id)
+    return id
+    
 
 
 
