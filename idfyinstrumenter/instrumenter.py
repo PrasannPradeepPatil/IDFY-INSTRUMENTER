@@ -2,6 +2,7 @@ import os
 from datetime import timezone
 import datetime
 import json
+import logging
 from .utils import make_routing_key_safe, event_source_routing_key, uuid4
 from .event_publisher import publish_message
 import threading
@@ -14,13 +15,25 @@ log_level_map = {
     "error": "Error"
 }
 
+def log_level_generator(level):
+    if(level == "info"):
+        return 20
+    if(level == "warn"):
+        return 30
+    if(level == "error"):
+        return 40
+
+
+
+
 
 def publish_status(res):
     publish_res = publish_event(res)
     if(publish_res == "PunlishedToRabbitMQ"):
-        print("Published To Rabbit MQ")
+        logging.info("Published To Rabbit MQ")
     else:
-        print("Error Publishing to RabbitMQ")
+        logging.error("Error Publishing to RabbitMQ")
+
 
 
 def error_status(res):
@@ -31,9 +44,10 @@ def error_status(res):
     else:
         errors = errors + [e]
     if (errors.len == 0):
-        print("Sucess")
+        logging.info("Sucess")
     else:
-        print("Error")
+        logging.error("Error")
+
 
 
 """
@@ -83,20 +97,21 @@ def do_log(level, raw_event, opts, l, app_vsn):
 
     res = parse_event(level, raw_event, l, app_vsn)
     if(log):
-        print("RESULT LOGGED TO CONSOLE")
+        logging.info("RESULT LOGGED TO CONSOLE")
         log_event(res)
 
     if (publish == True):
         if (asyncc == True):
             t1 = threading.Thread(target=publish_status, args=(res,))
             t1.start()
-            t1.join()
-            # publish_status(res)
+            # t1.join()
+
 
         else:
             error_status(res)
     else:
-        print("Sucsss")
+        logging.info("Sucess")
+
 
 
 """
@@ -198,8 +213,11 @@ def log_event(e):
         "message": message
     }
 
-   # Logger.log(e.level, fn -> {"", event} end)
-    print(event)
+    logging.log(log_level_generator(e["level"]),event)
+    # logging.log(40,event)
+
+
+
 
 
 """
@@ -235,8 +253,8 @@ def publish_event(e):
     }
 
     try:
-        while(True):
-            publish_message.publish_message(event, generate_routing_key(e))
+        # while(True):
+        publish_message.publish_message(event, generate_routing_key(e))
         return "PunlishedToRabbitMQ"
     except Exception as e:
         return e
