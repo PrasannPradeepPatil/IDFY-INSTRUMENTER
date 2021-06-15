@@ -7,32 +7,22 @@ from pika import connection
 
 
 
-def singleton(class_):
-    instances = {}
-    def getinstance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        return instances[class_]
-    return getinstance
-
-
-# @singleton
-class publish_message:
+class Publisher:
     __instance = None
     @staticmethod 
     def getInstance():
       """ Static access method. """
-      if publish_message.__instance == None:
-         publish_message()
-      return publish_message.__instance
+      if Publisher.__instance == None:
+         Publisher()
+      return Publisher.__instance
 
 
     def __init__(self):   
         """ Virtually private constructor. """
-        if publish_message.__instance != None:
+        if Publisher.__instance != None:
             raise Exception("This class is a singleton!")
         else:
-            publish_message.__instance = self
+            Publisher.__instance = self
    
         self.connection = None
         self.channel = None
@@ -49,7 +39,7 @@ class publish_message:
             logging.error("Connection Failed due to: ", e)
 
 
-    
+ 
     
     def publish_message(self,messageMap,routingKey):    
         if not self.connection or self.connection.is_closed:
@@ -57,7 +47,7 @@ class publish_message:
         
         messageMap  = json.dumps(messageMap).encode('utf-8')                                              
         self.channel.basic_publish(exchange='idfy-instrumenter', routing_key=routingKey, body=messageMap)
-        logging.info(" [x] Sent %r:%r" % (routingKey, messageMap))
+        # print(" [x] Sent %r:%r" % (routingKey, messageMap))
 
 
     

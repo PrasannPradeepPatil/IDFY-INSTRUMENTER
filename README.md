@@ -67,7 +67,7 @@ Used for structured logging in stdout & publishing events to event bus
         "level_value": "level_value"
         }
         opts = {"async":True,"publish":True,"log":True}
-        info("info",e,opts,{},"1.11")
+        info("info",e,opts,"1.11")
    
 
 ```
