@@ -27,12 +27,7 @@ def log_level_generator(level):
 
 
 
-def publish_async(res):
-    publish_res = publish_event(res)
-    if(publish_res == "PunlishedToRabbitMQ"):
-        return True
-    else:
-        raise Exception(publish_res)
+
 
 
 
@@ -84,12 +79,12 @@ def do_log(level, raw_event, opts, app_vsn):
 
     if (publish == True):
         if (asyncc == True):
-            t1 = threading.Thread(target=publish_async, args=(res,))
+            t1 = threading.Thread(target=publish_event, args=(res,))
             t1.start()
         else:
             errors = []
             publish_res = publish_event(res)
-            if(publish_res == "PunlishedToRabbitMQ"):
+            if(publish_res):
                 errors = errors
             else:
                 errors = errors + [publish_res]
@@ -186,8 +181,8 @@ def log_event(e):
         "message": message
     }
 
-    # logging.log(log_level_generator(e["level"]),event)
-    logging.log(40,event)
+    logging.log(log_level_generator(e["level"]),event)
+    # logging.log(40,event)
 
 
 
@@ -227,7 +222,7 @@ def publish_event(e):
     try:
         # while(True):
         publish_message.publish_message(event, generate_routing_key(e))
-        return "PunlishedToRabbitMQ"
+        return True
     except Exception as e:
         return e
 
