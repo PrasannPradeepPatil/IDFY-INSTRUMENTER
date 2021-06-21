@@ -8,29 +8,20 @@ from .event_publisher import Publisher
 import threading
 
 
-
 log_level_map = {
     "info": "Info",
     "warn": "Warning",
     "error": "Error"
 }
 
+
 def log_level_generator(level):
     if(level == "info"):
-        return logging.INFO #20
+        return logging.INFO  # 20
     if(level == "warn"):
-        return logging.WARN #30
+        return logging.WARN  # 30
     if(level == "error"):
-        return logging.ERROR #40
-
-
-
-
-
-
-
-
-
+        return logging.ERROR  # 40
 
 
 """
@@ -89,13 +80,11 @@ def do_log(level, raw_event, opts, app_vsn):
             else:
                 errors = errors + [publish_res]
             if (errors.len == 0):
-               return True
+                return True
             else:
                 logging.error("Failed Publishing To RabbitMQ")
     else:
         return True
-
-
 
 
 """
@@ -109,23 +98,24 @@ def do_log(level, raw_event, opts, app_vsn):
 # Parses the event into standard structure
 
 
-def parse_event(level, raw_event, app_vsn): 
+def parse_event(level, raw_event, app_vsn):
     event_source = raw_event.get("event_source")
-    app_vsn    =raw_event.get("app_vsn")    
-    component  =raw_event.get("component", os.environ.get('component'))   
-    service    =raw_event.get("service",os.environ.get('service'))   
-    event_value=raw_event.get("event_value", raw_event.get("event_name"))   
-    correlation_id=raw_event.get("correlation_id")   
-    ou_id=raw_event.get("ou_id")  
-    x_request_id=raw_event.get("x_request_id")  
-    reference_id=raw_event.get("reference_id")  
-    reference_type=raw_event.get("reference_type") 
+    app_vsn = raw_event.get("app_vsn")
+    component = raw_event.get("component", os.environ.get('component'))
+    service = raw_event.get("service", os.environ.get('service'))
+    event_value = raw_event.get("event_value", raw_event.get("event_name"))
+    correlation_id = raw_event.get("correlation_id")
+    ou_id = raw_event.get("ou_id")
+    x_request_id = raw_event.get("x_request_id")
+    reference_id = raw_event.get("reference_id")
+    reference_type = raw_event.get("reference_type")
     event_type = getevent_type(level, raw_event)
     dt = datetime.datetime.now(timezone.utc)
     utcTime = dt.replace(tzinfo=timezone.utc)
-    timestamp=raw_event.get("timestamp",utcTime) 
-    details=raw_event.get("details") 
-    service_category  =raw_event.get("service_category", os.environ.get('service_category'))   
+    timestamp = raw_event.get("timestamp", utcTime)
+    details = raw_event.get("details")
+    service_category = raw_event.get(
+        "service_category", os.environ.get('service_category'))
 
     return {
         "app_vsn": app_vsn,
@@ -157,13 +147,13 @@ def parse_event(level, raw_event, app_vsn):
 
 
 def log_event(e):
-    timestamp =format_time_stamp(e["timestamp"])
+    timestamp = format_time_stamp(e["timestamp"])
     message = f'{e["reference_id"]}: {e["service"]} -> {e["event_type"]} - {e["event_value"]}'
 
     event = {
         "app_vsn": e["app_vsn"],
         "eid": e["eid"],
-        "timestamp" : timestamp,
+        "timestamp": timestamp,
         "x_request_id": e["x_request_id"],
         "event_source": e["event_source"],
         "log_level": e["level_value"],
@@ -176,16 +166,13 @@ def log_event(e):
         "service": e["service"],
         "event_type": e["event_type"],
         "event_name": e["event_value"],
-        "details" :json.dumps(e["details"]),
+        "details": json.dumps(e["details"]),
         "log_version": e["log_version"],
         "message": message
     }
 
-    logging.log(log_level_generator(e["level"]),event)
+    logging.log(log_level_generator(e["level"]), event)
     # logging.log(40,event)
-
-
-
 
 
 """
@@ -198,11 +185,11 @@ publish_message = Publisher.getInstance()
 
 
 def publish_event(e):
-    timestamp =format_time_stamp(e["timestamp"])
+    timestamp = format_time_stamp(e["timestamp"])
     event = {
         "app_vsn": e["app_vsn"],
         "eid": e["eid"],
-        "timestamp" : timestamp,
+        "timestamp": timestamp,
         "x_request_id": e["x_request_id"],
         "event_source": e["event_source"],
         "log_level": e["level_value"],
@@ -264,19 +251,16 @@ def getevent_type(level, eventMap):
         return eventMap["event_type"]
 
 
-
 def format_time_stamp(opts):
     if(opts == "local"):
-        local     = datetime.datetime.now()
+        local = datetime.datetime.now()
         return local
     if(opts == "utc"):
-        utc       = datetime.datetime.utcnow()
+        utc = datetime.datetime.utcnow()
         return utc
     if(opts == "isoLocal"):
-        isoLocal = datetime.datetime.now().isoformat() 
+        isoLocal = datetime.datetime.now().isoformat()
         return isoLocal
     if(opts == "isoUtc"):
-        isoUtc   = datetime.datetime.utcnow().isoformat() 
+        isoUtc = datetime.datetime.utcnow().isoformat()
         return isoUtc
-
-

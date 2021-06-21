@@ -11,15 +11,17 @@ import uuid
       "null"
 
 '''
-def make_routing_key_safe(s,ch="+"):
+
+
+def make_routing_key_safe(s, ch="+"):
     if(isinstance(s, str)):
         if(str == None):
             return "null"
-        return s.replace(".",ch)
+        return s.replace(".", ch)
     else:
         return "make_routing_key_safe Takes (String , char='+' ) as arguement"
 
-    
+
 """
   Takes events which are string and return event_source in case of custom source else return "null" for RMQ routing key
 
@@ -31,12 +33,14 @@ def make_routing_key_safe(s,ch="+"):
       event_source_routing_key("(ms_connection_check) lib/ms_connection_check/media_server.ex:150: Elixir.MsConnectionCheck.MediaServer.attempt_room_creation/4")
       "null"
 """
+
+
 def event_source_routing_key(events):
     if(isinstance(events, str)):
         if(events.startswith("(")):
             return "null"
         else:
-            return events    
+            return events
     else:
         return "event_source_routing_key takes (String) as arguement"
 
@@ -49,19 +53,8 @@ def event_source_routing_key(events):
       "fb49a0ec-d60c-4d20-9264-3b4cfe272106"
 
 """
+
+
 def uuid4():
     id = str(uuid.uuid4())
     return id
-    
-
-
-
-
-
-
-
-
-
-
-
-
