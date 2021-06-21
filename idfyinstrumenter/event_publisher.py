@@ -3,6 +3,7 @@ import pika
 import sys
 import json
 import logging
+import os
 from pika import connection
 
 
@@ -34,7 +35,8 @@ class Publisher:
         
             self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
             self.channel = self.connection.channel()
-            self.channel.exchange_declare(exchange='idfy-instrumenter', exchange_type='topic',durable=True)
+            # exchange='idfy-instrumenter'
+            self.channel.exchange_declare(exchange=os.environ.get('exchange'), exchange_type='topic',durable=True)
         except Exception as e:
             logging.error("Connection Failed due to: ", e)
 

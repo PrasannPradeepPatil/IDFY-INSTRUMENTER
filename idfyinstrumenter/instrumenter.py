@@ -17,17 +17,17 @@ log_level_map = {
 
 def log_level_generator(level):
     if(level == "info"):
-        return 20
+        return logging.INFO #20
     if(level == "warn"):
-        return 30
+        return logging.WARN #30
     if(level == "error"):
-        return 40
+        return logging.ERROR #40
 
 
 
 
 
-def publish_status(res):
+def publish_async(res):
     publish_res = publish_event(res)
     if(publish_res == "PunlishedToRabbitMQ"):
         return True
@@ -80,12 +80,11 @@ def do_log(level, raw_event, opts, app_vsn):
 
     res = parse_event(level, raw_event, app_vsn)
     if(log):
-        logging.info("RESULT LOGGED TO CONSOLE")
         log_event(res)
 
     if (publish == True):
         if (asyncc == True):
-            t1 = threading.Thread(target=publish_status, args=(res,))
+            t1 = threading.Thread(target=publish_async, args=(res,))
             t1.start()
         else:
             errors = []
@@ -97,7 +96,7 @@ def do_log(level, raw_event, opts, app_vsn):
             if (errors.len == 0):
                return True
             else:
-                logging.error("Error")
+                logging.error("Failed Publishing To RabbitMQ")
     else:
         return True
 
@@ -187,8 +186,8 @@ def log_event(e):
         "message": message
     }
 
-    logging.log(log_level_generator(e["level"]),event)
-    # logging.log(40,event)
+    # logging.log(log_level_generator(e["level"]),event)
+    logging.log(40,event)
 
 
 
