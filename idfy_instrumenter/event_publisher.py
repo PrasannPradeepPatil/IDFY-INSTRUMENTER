@@ -32,9 +32,9 @@ class Publisher:
         try:
 
             self.connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host='localhost'))
+                pika.ConnectionParameters(host=os.environ.get(
+                'hostUrl'),))
             self.channel = self.connection.channel()
-            # exchange='idfy-instrumenter'
             self.channel.exchange_declare(exchange=os.environ.get(
                 'exchange'), exchange_type='topic', durable=True)
         except Exception as e:
@@ -46,7 +46,7 @@ class Publisher:
 
         messageMap = json.dumps(messageMap).encode('utf-8')
         self.channel.basic_publish(
-            exchange='idfy-instrumenter', routing_key=routingKey, body=messageMap)
-        # print(" [x] Sent %r:%r" % (routingKey, messageMap))
+            exchange=os.environ.get(
+                'exchange'), routing_key=routingKey, body=messageMap)
 
         # connection.close()

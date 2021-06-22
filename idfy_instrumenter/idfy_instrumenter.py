@@ -1,4 +1,5 @@
-from idfyinstrumenter import instrumenter
+from idfy_instrumenter import instrumenter
+
 
 """
   Log function that takes level as argument

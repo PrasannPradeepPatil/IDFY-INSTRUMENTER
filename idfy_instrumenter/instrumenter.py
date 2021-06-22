@@ -70,11 +70,11 @@ def do_log(level, raw_event, opts, app_vsn):
 
     if (publish == True):
         if (asyncc == True):
-            t1 = threading.Thread(target=publish_event, args=(res,))
+            t1 = threading.Thread(target=publish_event, args=(res,asyncc))
             t1.start()
         else:
             errors = []
-            publish_res = publish_event(res)
+            publish_res = publish_event(res,asyncc)
             if(publish_res):
                 errors = errors
             else:
@@ -85,6 +85,9 @@ def do_log(level, raw_event, opts, app_vsn):
                 logging.error("Failed Publishing To RabbitMQ")
     else:
         return True
+
+        # if(asyycnn true):
+        #     return 
 
 
 """
@@ -181,10 +184,10 @@ def log_event(e):
        publish_event(e) 
 """
 
-publish_message = Publisher.getInstance()
 
 
-def publish_event(e):
+
+def publish_event(e, asyncc):
     timestamp = format_time_stamp(e["timestamp"])
     event = {
         "app_vsn": e["app_vsn"],
@@ -206,11 +209,13 @@ def publish_event(e):
         "details": e["details"]
     }
 
+    publisher = Publisher.getInstance()
     try:
-        # while(True):
-        publish_message.publish_message(event, generate_routing_key(e))
+        publisher.publish_message(event, generate_routing_key(e))
         return True
     except Exception as e:
+        if(asyncc==True):
+            raise Exception("Publish error occured")
         return e
 
 
