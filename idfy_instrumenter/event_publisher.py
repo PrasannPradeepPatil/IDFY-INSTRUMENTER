@@ -2,6 +2,7 @@
 import pika
 import sys
 import json
+from bson import json_util
 import logging
 import os
 from pika import connection
@@ -44,7 +45,8 @@ class Publisher:
         if not self.connection or self.connection.is_closed:
             self.connect_rmq()
 
-        messageMap = json.dumps(messageMap).encode('utf-8')
+        messageMap = json.dumps(
+            messageMap, default=json_util.default).encode('utf-8')
         self.channel.basic_publish(
             exchange=os.environ.get(
                 'exchange'), routing_key=routingKey, body=messageMap)

@@ -1,1 +1,1 @@
-from .idfy_instrumenter import info, warn, error
+from .idfy_instrumenter import info, warn, error,log

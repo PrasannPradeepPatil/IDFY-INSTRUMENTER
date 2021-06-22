@@ -1,6 +1,7 @@
 import os
 from datetime import timezone
 import datetime
+
 import json
 import logging
 from .utils import make_routing_key_safe, event_source_routing_key, uuid4
@@ -254,16 +255,16 @@ def getevent_type(level, eventMap):
         return eventMap["event_type"]
 
 
-def format_time_stamp(opts):
+def format_time_stamp(date_time_obj, opts="local"):
     if(opts == "local"):
-        local = datetime.datetime.now()
-        return local
+        return date_time_obj
     if(opts == "utc"):
-        utc = datetime.datetime.utcnow()
+        utc = date_time_obj.utcnow()
         return utc
     if(opts == "isoLocal"):
-        isoLocal = datetime.datetime.now().isoformat()
+        isoLocal = date_time_obj.isoformat()
         return isoLocal
     if(opts == "isoUtc"):
-        isoUtc = datetime.datetime.utcnow().isoformat()
+        utc = date_time_obj.utcnow()
+        isoUtc = utc.isoformat()
         return isoUtc
