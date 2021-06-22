@@ -70,11 +70,11 @@ def do_log(level, raw_event, opts, app_vsn):
 
     if (publish == True):
         if (asyncc == True):
-            t1 = threading.Thread(target=publish_event, args=(res,asyncc))
+            t1 = threading.Thread(target=publish_event, args=(res, asyncc))
             t1.start()
         else:
             errors = []
-            publish_res = publish_event(res,asyncc)
+            publish_res = publish_event(res, asyncc)
             if(publish_res):
                 errors = errors
             else:
@@ -87,7 +87,7 @@ def do_log(level, raw_event, opts, app_vsn):
         return True
 
         # if(asyycnn true):
-        #     return 
+        #     return
 
 
 """
@@ -185,8 +185,6 @@ def log_event(e):
 """
 
 
-
-
 def publish_event(e, asyncc):
     timestamp = format_time_stamp(e["timestamp"])
     event = {
@@ -214,7 +212,7 @@ def publish_event(e, asyncc):
         publisher.publish_message(event, generate_routing_key(e))
         return True
     except Exception as e:
-        if(asyncc==True):
+        if(asyncc == True):
             raise Exception("Publish error occured")
         return e
 

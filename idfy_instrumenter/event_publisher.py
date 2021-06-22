@@ -33,7 +33,7 @@ class Publisher:
 
             self.connection = pika.BlockingConnection(
                 pika.ConnectionParameters(host=os.environ.get(
-                'hostUrl'),))
+                    'hostUrl'),))
             self.channel = self.connection.channel()
             self.channel.exchange_declare(exchange=os.environ.get(
                 'exchange'), exchange_type='topic', durable=True)
