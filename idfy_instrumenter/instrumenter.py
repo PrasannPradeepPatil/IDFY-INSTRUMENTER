@@ -255,16 +255,9 @@ def getevent_type(level, eventMap):
         return eventMap["event_type"]
 
 
-def format_time_stamp(date_time_obj, opts="local"):
+def format_time_stamp(date_time_obj, opts="utc"):
     if(opts == "local"):
-        return date_time_obj
+        return date_time_obj.isoformat()
     if(opts == "utc"):
-        utc = date_time_obj.utcnow()
+        utc = date_time_obj.isoformat()
         return utc
-    if(opts == "isoLocal"):
-        isoLocal = date_time_obj.isoformat()
-        return isoLocal
-    if(opts == "isoUtc"):
-        utc = date_time_obj.utcnow()
-        isoUtc = utc.isoformat()
-        return isoUtc

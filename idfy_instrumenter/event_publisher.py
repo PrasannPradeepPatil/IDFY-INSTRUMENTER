@@ -46,7 +46,7 @@ class Publisher:
             self.connect_rmq()
 
         messageMap = json.dumps(
-            messageMap, default=json_util.default).encode('utf-8')
+            messageMap).encode('utf-8')
         self.channel.basic_publish(
             exchange=os.environ.get(
                 'exchange'), routing_key=routingKey, body=messageMap)
