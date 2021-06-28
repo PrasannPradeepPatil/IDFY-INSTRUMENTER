@@ -40,7 +40,7 @@ class Publisher:
                 'exchange'), exchange_type='topic', durable=True)
         except Exception as e:
             logging.error("Connection Failed due to: ", e)
-            print("Connection Failed due to: ", e)
+        
 
     def publish_message(self, messageMap, routingKey):
         if not self.connection or self.connection.is_closed:
