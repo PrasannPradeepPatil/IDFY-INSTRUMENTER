@@ -31,15 +31,16 @@ class Publisher:
 
     def connect_rmq(self):
         try:
-
             self.connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host=os.environ.get(
-                    'hostUrl'),))
+                pika.URLParameters(os.environ.get('hostUrl'))
+
+            )
             self.channel = self.connection.channel()
             self.channel.exchange_declare(exchange=os.environ.get(
                 'exchange'), exchange_type='topic', durable=True)
         except Exception as e:
             logging.error("Connection Failed due to: ", e)
+            print("Connection Failed due to: ", e)
 
     def publish_message(self, messageMap, routingKey):
         if not self.connection or self.connection.is_closed:

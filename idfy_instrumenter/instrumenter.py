@@ -80,7 +80,7 @@ def do_log(level, raw_event, opts, app_vsn):
                 errors = errors
             else:
                 errors = errors + [publish_res]
-            if (errors.len == 0):
+            if (len(errors) == 0):
                 return True
             else:
                 logging.error("Failed Publishing To RabbitMQ")
