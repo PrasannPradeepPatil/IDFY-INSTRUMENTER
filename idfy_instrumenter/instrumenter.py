@@ -52,10 +52,10 @@ def do_log(level, raw_event, opts, app_vsn):
 
     asyncc = True
     if("async" not in opts):
-        if os.environ['async'] == None:
+        if os.environ['ASYNC'] == None:
             asyncc = True
         else:
-            asyncc = os.environ['async']
+            asyncc = os.environ['ASYNC']
     else:
         asyncc = opts["async"]
 
@@ -105,8 +105,8 @@ def do_log(level, raw_event, opts, app_vsn):
 def parse_event(level, raw_event, app_vsn):
     event_source = raw_event.get("event_source")
     app_vsn = raw_event.get("app_vsn")
-    component = raw_event.get("component", os.environ.get('component'))
-    service = raw_event.get("service", os.environ.get('service'))
+    component = raw_event.get("component", os.environ.get('COMPONENT'))
+    service = raw_event.get("service", os.environ.get('SERVICE'))
     event_value = raw_event.get("event_value", raw_event.get("event_name"))
     correlation_id = raw_event.get("correlation_id")
     ou_id = raw_event.get("ou_id")
@@ -119,7 +119,7 @@ def parse_event(level, raw_event, app_vsn):
     timestamp = raw_event.get("timestamp", utcTime)
     details = raw_event.get("details")
     service_category = raw_event.get(
-        "service_category", os.environ.get('service_category'))
+        "service_category", os.environ.get('SERVICE_CATEGORY'))
 
     return {
         "app_vsn": app_vsn,

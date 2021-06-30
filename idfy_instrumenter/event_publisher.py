@@ -32,12 +32,12 @@ class Publisher:
     def connect_rmq(self):
         try:
             self.connection = pika.BlockingConnection(
-                pika.URLParameters(os.environ.get('hostUrl'))
+                pika.URLParameters(os.environ.get('AMQP_URL'))
 
             )
             self.channel = self.connection.channel()
             self.channel.exchange_declare(exchange=os.environ.get(
-                'exchange'), exchange_type='topic', durable=True)
+                'EXCHANGE'), exchange_type='topic', durable=True)
         except Exception as e:
             logging.error("Connection Failed due to: ", e)
         
@@ -50,6 +50,6 @@ class Publisher:
             messageMap).encode('utf-8')
         self.channel.basic_publish(
             exchange=os.environ.get(
-                'exchange'), routing_key=routingKey, body=messageMap)
+                'EXCHANGE'), routing_key=routingKey, body=messageMap)
 
         # connection.close()
